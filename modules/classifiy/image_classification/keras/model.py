@@ -1,16 +1,20 @@
-from tensorflow.keras.layers import AbstractRNNCell, Activation, ActivityRegularization, AveragePooling2D, AvgPool2D, BatchNormalization, Conv2D, Conv2DTranspose, Dense, Dropout, GlobalAveragePooling2D, GlobalMaxPooling2D, LSTM, Flatten
+from tensorflow.keras.layers import AbstractRNNCell, Activation, ActivityRegularization, AveragePooling2D, AvgPool2D, \
+    BatchNormalization, Conv2D, Conv2DTranspose, Dense, Dropout, GlobalAveragePooling2D, GlobalMaxPooling2D, LSTM, \
+    Flatten, MaxPooling2D, MaxPool2D
 import os
-from tensorflow.keras import Model
+from tensorflow.keras import Model, Sequential
 from sklearn.metrics import roc_auc_score
 from sklearn.metrics import confusion_matrix
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_curve
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 from tensorflow.keras.callbacks import ModelCheckpoint
 import numpy as np
 from sklearn.model_selection import train_test_split
 import tensorflow as tf
-from tensorflow.keras.applications import mobilenet, mobilenet_v2, mobilenet_v3, nasnet, regnet, resnet, resnet_rs, resnet_v2, vgg16, vgg19, xception
+from tensorflow.keras.applications import mobilenet, mobilenet_v2, mobilenet_v3, nasnet, regnet, resnet, resnet_rs, \
+    resnet_v2, vgg16, vgg19, xception
 import cv2
 from sklearn.preprocessing import OneHotEncoder
+
 enc = OneHotEncoder()
 
 structured_dict = {
@@ -107,12 +111,123 @@ layers_dict = {
     "GlobalAveragePooling2D": GlobalAveragePooling2D,
     "GlobalMaxPooling2D": GlobalMaxPooling2D,
     "LSTM": LSTM,
-    "Flatten": Flatten
+    "Flatten": Flatten,
+    "MaxPolling2D": MaxPooling2D,
+    "Sequential": Sequential,
+    "MaxPool2D": MaxPool2D
 }
 
 
+def build_model(layers, input_size, num_classes, num_channels):
+    model = Sequential()
+    model.add(Conv2D(32, (3, 3), activation='relu', input_shape=(input_size, input_size, num_channels)))
+    for layer in layers:
+        model.add(layer)
+    model.add(Dense(num_classes, activation="softmax"))
+    return model
+
+
+class ModelFromScratch:
+    def __init__(self, num_classes, model=None, aug=False, tunner=False,
+                 image_size=224, epochs=100, num_chanel=3, optimize='adam', loss='categorical_crossentropy',
+                 image_path=""):
+        self.optimize = optimize
+        self.epochs = epochs
+        self.image_path = image_path
+        self.image_size = image_size
+        self.num_chanel = num_chanel
+        if self.model is not None:
+            self.model = model
+        else:
+            self.model = Sequential()
+            self.model.add(Conv2D(32, (3, 3), activation='relu', input_shape=(image_size, image_size, num_chanel)))
+            self.model.add(MaxPooling2D((2, 2)))
+            self.model.add(Conv2D(64, (3, 3), activation='relu'))
+            self.model.add(MaxPooling2D((2, 2)))
+            self.model.add(Conv2D(64, (3, 3), activation='relu'))
+            self.model.add(GlobalAveragePooling2D())
+            self.model.add(Dense(32, activation='relu'))
+            self.model.add(Dense(num_classes, activation='softmax'))
+        self.model.compile(loss=loss, optimizer=optimize, metrics=['accuracy'])
+        self.X_train, self.X_test, self.y_train, self.y_test = self.load_data()
+
+    def load_data(self):
+        X = []
+        y = []
+        for label in os.listdir(self.image_path):
+            for file_name in os.listdir(f"{self.image_path}/{label}"):
+                try:
+                    image = cv2.imread(
+                        f"{self.image_path}/{label}/{file_name}")
+                    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+                    image = cv2.resize(
+                        image, (self.image_size, self.image_size))
+                    image = image / 255.0
+                    X.append(image)
+                    y.append([label])
+                except Exception as e:
+                    print(e)
+        X = np.array(X)
+        y = enc.fit_transform(y).toarray()
+        X_train, X_test, y_train, y_test = train_test_split(
+            X, y, test_size=0.2, random_state=42)
+        return X_train, X_test, y_train, y_test
+
+    def train(self):
+        fileweight = "best_weight.hdf5"
+        checkpoint = ModelCheckpoint(
+            fileweight, monitor='val_accuracy', verbose=1, save_best_only=True, mode='max')
+        callbacks_list = [checkpoint]
+        batch_size = 64
+        history = self.model.fit(self.X_train, self.y_train, validation_split=0.15,
+                                 batch_size=batch_size,
+                                 epochs=self.epochs,
+                                 callbacks=callbacks_list, verbose=0)
+        self.model.load_weights(fileweight)
+        return history
+
+    def evaluate(self):
+        grouth_trust = np.argmax(self.y_test, axis=1)
+        pred = self.model.predict(self.X_test)
+        predictions = np.argmax(pred, axis=1)
+
+        print(confusion_matrix(grouth_trust, predictions))
+
+        tn, fp, fn, tp = confusion_matrix(grouth_trust, predictions).ravel()
+        Specificity = tn / (tn + fp)
+
+        Sensitivity = tp / (tp + fn)
+
+        Accuracy = accuracy_score(grouth_trust, predictions)
+        Precision = precision_score(grouth_trust, predictions)
+        Recall = recall_score(grouth_trust, predictions)
+        f1_Score = f1_score(grouth_trust, predictions)
+        Roc = roc_auc_score(grouth_trust, predictions)
+        return Accuracy, Precision, Recall, f1_Score, Roc, Specificity, Sensitivity
+
+    def export(self, export_type='tf', quantized=False):
+        if export_type == 'tf':
+            self.model.save('model.h5')
+        else:
+            if quantized:
+                converter = tf.lite.TFLiteConverter.from_keras_model(
+                    self.model)
+                converter.optimizations = [tf.lite.Optimize.DEFAULT]
+                tflite_quant_model = converter.convert()
+                with open('model_int8.tflite', 'wb') as f:
+                    f.write(tflite_quant_model)
+            else:
+                converter = tf.lite.TFLiteConverter.from_keras_model(
+                    self.model)
+                converter.optimizations = [tf.lite.Optimize.DEFAULT]
+                tflite_quant_model = converter.convert()
+                with open('model.tflite', 'wb') as f:
+                    f.write(tflite_quant_model)
+
+
 class TransferLearningModel:
-    def __init__(self, structured, base_model, num_classes, aug=False, fully_connected_layer=None, tunner=False, image_size=224, epochs=100, optimize='adam', loss='categorical_crossentropy', image_path=""):
+    def __init__(self, structured, base_model, num_classes, aug=False, fully_connected_layer=None, tunner=False,
+                 image_size=224, epochs=100, optimize='adam', loss='categorical_crossentropy', image_path=""):
         self.preprocess_input = structured['preprocess']
         self.optimize = optimize
         self.epochs = epochs
@@ -182,7 +297,7 @@ class TransferLearningModel:
         print(confusion_matrix(grouth_trust, predictions))
 
         tn, fp, fn, tp = confusion_matrix(grouth_trust, predictions).ravel()
-        Specificity = tn/(tn + fp)
+        Specificity = tn / (tn + fp)
 
         Sensitivity = tp / (tp + fn)
 

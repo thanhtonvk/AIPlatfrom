@@ -1,0 +1,6 @@
+numpy~=1.21.0
+tensorflow~=2.11.0
+opencv-python~=4.4.0.42
+sklearn~=0.0.post1
+scikit-learn~=0.23.0
+pandas~=1.2.4
