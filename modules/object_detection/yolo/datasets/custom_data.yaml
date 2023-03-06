@@ -1,0 +1,5 @@
+train : /AIPlatform/modules/object_detection/yolo/datasets/train/images/
+val : /AIPlatform/modules/object_detection/yolo/datasets/test/images/
+is_coco: False
+nc: 1
+names: ['card']
