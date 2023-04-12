@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+    />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Phân loại hình ảnh</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+      crossorigin="anonymous"
+    />
+  </head>
+  <body>
+    <nav class="navbar navbar-dark bg-primary">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="/">AI Platform</a>
+      </div>
+    </nav>
+
+    <div class="container">
+      <h1>Phân loại hình ảnh</h1>
+      <form action="" method="POST" enctype="multipart/form-data">
+        <div class="row">
+          <div class="col-4">
+            <h5>Kiến trúc</h5>
+            <select class="form-select" aria-label="Default select example">
+              <option selected>Scratch</option>
+              <option value="1">MobileNetV2</option>
+              <option value="2">Resnet</option>
+              <option value="3">VGG</option>
+            </select>
+          </div>
+          <div class="col-4">
+            <h5>Tunner</h5>
+            <select class="form-select" aria-label="Default select example">
+              <option selected>Có</option>
+              <option value="1">Không</option>
+            </select>
+          </div>
+          <div class="col-4">
+            <h5>Augumentation</h5>
+            <select class="form-select" aria-label="Default select example">
+              <option selected>Có</option>
+              <option value="1">Không</option>
+            </select>
+          </div>
+          <div class="col-4"></div>
+        </div>
+        <div class="row">
+          <div class="col-3">
+            <h5>Kích thước hình ảnh</h5>
+            <div class="row">
+              <div class="col-4">
+                <input type="number" class="form-control" value="224" />
+              </div>
+              X
+              <div class="col-4">
+                <input type="number" class="form-control" value="224" />
+              </div>
+            </div>
+          </div>
+          <div class="col-3">
+            <h5>Số lần huấn luyện</h5>
+            <div class="row">
+              <input type="number" class="form-control" value="10" />
+            </div>
+          </div>
+          <div class="col-3">
+            <h5>Optimizes</h5>
+            <select
+              class="form-select col-1"
+              aria-label="Default select example"
+            >
+              <option selected>Adam</option>
+              <option value="1">SGD</option>
+            </select>
+          </div>
+          <div class="col-3">
+            <h5>Losses</h5>
+            <select
+              class="form-select col-1"
+              aria-label="Default select example"
+            >
+              <option selected>Category cross entropy</option>
+              <option value="1">Binary cross entropy</option>
+            </select>
+          </div>
+        </div>
+        <h5>Fully connected</h5>
+        <select class="form-select col-1" aria-label="Default select example">
+          <option selected>Tự động</option>
+          <option value="1">AbstractRNNCell</option>
+        </select>
+        <p>File <input type="file" name="file" class="form-control" /></p>
+        <p>
+          <input type="submit" value="Huấn luyện" class="btn btn-primary" />
+        </p>
+      </form>
+    </div>
+  </body>
+  <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+    crossorigin="anonymous"
+  ></script>
+</html>
