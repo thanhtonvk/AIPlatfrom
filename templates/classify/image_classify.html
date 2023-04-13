@@ -1,111 +1,165 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
+<head>
+    <meta charset="UTF-8"/>
     <meta
-      name="viewport"
-      content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+            name="viewport"
+            content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
     />
-    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
     <title>Phân loại hình ảnh</title>
     <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-      integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
-      crossorigin="anonymous"
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+            integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+            crossorigin="anonymous"
     />
-  </head>
-  <body>
-    <nav class="navbar navbar-dark bg-primary">
-      <div class="container-fluid">
+</head>
+<body>
+<nav class="navbar navbar-dark bg-primary">
+    <div class="container-fluid">
         <a class="navbar-brand" href="/">AI Platform</a>
-      </div>
-    </nav>
+    </div>
+</nav>
 
-    <div class="container">
-      <h1>Phân loại hình ảnh</h1>
-      <form action="" method="POST" enctype="multipart/form-data">
+<div class="container">
+    <h1>Phân loại hình ảnh</h1>
+    <form action="" method="POST" enctype="multipart/form-data">
         <div class="row">
-          <div class="col-4">
-            <h5>Kiến trúc</h5>
-            <select class="form-select" aria-label="Default select example">
-              <option selected>Scratch</option>
-              <option value="1">MobileNetV2</option>
-              <option value="2">Resnet</option>
-              <option value="3">VGG</option>
-            </select>
-          </div>
-          <div class="col-4">
-            <h5>Tunner</h5>
-            <select class="form-select" aria-label="Default select example">
-              <option selected>Có</option>
-              <option value="1">Không</option>
-            </select>
-          </div>
-          <div class="col-4">
-            <h5>Augumentation</h5>
-            <select class="form-select" aria-label="Default select example">
-              <option selected>Có</option>
-              <option value="1">Không</option>
-            </select>
-          </div>
-          <div class="col-4"></div>
+            <div class="col-4">
+                <h5>Kiến trúc</h5>
+                <select class="form-select" id="kien-truc">
+                    <option selected>Scratch</option>
+                    <option value="1">MobileNetV2</option>
+                    <option value="2">Resnet</option>
+                    <option value="3">VGG</option>
+                </select>
+            </div>
+            <div class="col-4">
+                <h5>Tunner</h5>
+                <select class="form-select" id="tunner">
+                    <option selected>Có</option>
+                    <option value="1">Không</option>
+                </select>
+            </div>
+            <div class="col-4">
+                <h5>Augumentation</h5>
+                <select class="form-select" id="aug">
+                    <option selected>Có</option>
+                    <option value="1">Không</option>
+                </select>
+            </div>
+            <div class="col-4"></div>
         </div>
         <div class="row">
-          <div class="col-3">
-            <h5>Kích thước hình ảnh</h5>
-            <div class="row">
-              <div class="col-4">
-                <input type="number" class="form-control" value="224" />
-              </div>
-              X
-              <div class="col-4">
-                <input type="number" class="form-control" value="224" />
-              </div>
+            <div class="col-3">
+                <h5>Kích thước hình ảnh</h5>
+                <div class="row">
+                    <div class="col-4">
+                        <input type="number" class="form-control" value="224" id="img-size-with"/>
+                    </div>
+                    X
+                    <div class="col-4">
+                        <input type="number" class="form-control" value="224" id="img-size-height"/>
+                    </div>
+                </div>
             </div>
-          </div>
-          <div class="col-3">
-            <h5>Số lần huấn luyện</h5>
-            <div class="row">
-              <input type="number" class="form-control" value="10" />
+
+            <div class="col-3">
+                <h5>Optimizes</h5>
+                <select
+                        class="form-select col-1"
+                        id="optimizes"
+                >
+                    <option selected>Adam</option>
+                    <option value="1">SGD</option>
+                </select>
             </div>
-          </div>
-          <div class="col-3">
-            <h5>Optimizes</h5>
-            <select
-              class="form-select col-1"
-              aria-label="Default select example"
-            >
-              <option selected>Adam</option>
-              <option value="1">SGD</option>
-            </select>
-          </div>
-          <div class="col-3">
-            <h5>Losses</h5>
-            <select
-              class="form-select col-1"
-              aria-label="Default select example"
-            >
-              <option selected>Category cross entropy</option>
-              <option value="1">Binary cross entropy</option>
-            </select>
-          </div>
+            <div class="col-3">
+                <h5>Losses</h5>
+                <select
+                        class="form-select col-1"
+                        id="losses"
+                >
+                    <option selected>Category cross entropy</option>
+                    <option value="1">Binary cross entropy</option>
+                </select>
+            </div>
+            <div class="col-3">
+                <h5>Số lần huấn luyện</h5>
+                <div class="row">
+                    <input type="number" class="form-control" value="50" id="epochs"/>
+                </div>
+            </div>
         </div>
         <h5>Fully connected</h5>
-        <select class="form-select col-1" aria-label="Default select example">
-          <option selected>Tự động</option>
-          <option value="1">AbstractRNNCell</option>
-        </select>
-        <p>File <input type="file" name="file" class="form-control" /></p>
+        <div class="row">
+            <div class="col-4">
+                <h6>Layers</h6>
+                <select class="form-select" id="layers">
+                    <option selected>Tự động</option>
+                    <option value="AbstractRNNCell">AbstractRNNCell</option>
+                </select>
+                <button type="button" class="btn btn-warning" onclick="addParameter()">Thêm</button>
+            </div>
+            <div class="col-4">
+                <h6>Params</h6>
+                <label>
+                    <input class="form-control" type="text" id="params"/>
+                </label>
+            </div>
+            <div class="col-4">
+                <table class="table" id="params-table">
+                    <thead>
+                    <tr>
+                        <th scope="col">STT</th>
+                        <th scope="col">Layer</th>
+                        <th scope="col">Param</th>
+
+                    </tr>
+                    </thead>
+                    <tbody id="param_list">
+                    <tr>
+
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+
+        <p>File <input type="file" name="file" class="form-control"/></p>
         <p>
-          <input type="submit" value="Huấn luyện" class="btn btn-primary" />
+            <input type="submit" value="Huấn luyện" class="btn btn-primary"/>
         </p>
-      </form>
-    </div>
-  </body>
-  <script
-    src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
-    integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
-    crossorigin="anonymous"
-  ></script>
+    </form>
+</div>
+</body>
+<script type="text/javascript">
+    const layers = new Array()
+
+    function addParameter() {
+        layer = document.getElementById('layers').value;
+        param = document.getElementById('params').value;
+        layers.push({"layer": layer, "param": param});
+        html = ''
+        for (var i = 0; i < layers.length; i++) {
+            html += `
+            <tr>
+                        <th scope="row">${i + 1}</th>
+                        <td>${layers[i].layer}</td>
+                        <td>(${layers[i].param})</td>
+                    </tr>
+            `
+        }
+        document.getElementById('param_list').innerHTML = html
+
+    }
+</script>
+<script
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+        crossorigin="anonymous"
+></script>
 </html>

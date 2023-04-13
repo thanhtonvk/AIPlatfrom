@@ -1,19 +1,20 @@
+import os
+
+import cv2
+import numpy as np
+import tensorflow as tf
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+from sklearn.metrics import confusion_matrix
+from sklearn.metrics import roc_auc_score
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import OneHotEncoder
+from tensorflow.keras import Model, Sequential
+from tensorflow.keras.applications import mobilenet, mobilenet_v2, mobilenet_v3, nasnet, regnet, resnet, resnet_rs, \
+    resnet_v2, vgg16, vgg19, xception
+from tensorflow.keras.callbacks import ModelCheckpoint
 from tensorflow.keras.layers import AbstractRNNCell, Activation, ActivityRegularization, AveragePooling2D, AvgPool2D, \
     BatchNormalization, Conv2D, Conv2DTranspose, Dense, Dropout, GlobalAveragePooling2D, GlobalMaxPooling2D, LSTM, \
     Flatten, MaxPooling2D, MaxPool2D
-import os
-from tensorflow.keras import Model, Sequential
-from sklearn.metrics import roc_auc_score
-from sklearn.metrics import confusion_matrix
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
-from tensorflow.keras.callbacks import ModelCheckpoint
-import numpy as np
-from sklearn.model_selection import train_test_split
-import tensorflow as tf
-from tensorflow.keras.applications import mobilenet, mobilenet_v2, mobilenet_v3, nasnet, regnet, resnet, resnet_rs, \
-    resnet_v2, vgg16, vgg19, xception
-import cv2
-from sklearn.preprocessing import OneHotEncoder
 
 enc = OneHotEncoder()
 
@@ -136,6 +137,7 @@ class ModelFromScratch:
         self.image_path = image_path
         self.image_size = image_size
         self.num_chanel = num_chanel
+        self.num_classes = len(os.listdir(self.image_path))
         if self.model is not None:
             self.model = model
         else:
@@ -234,6 +236,7 @@ class TransferLearningModel:
         self.image_path = image_path
         self.image_size = image_size
         self.aug = aug
+        self.num_classes = len(os.listdir(self.image_path))
         base = base_model(include_top=False, input_shape=(
             self.image_size, self.image_size, 3))
         for layer in base.layers:
@@ -257,6 +260,7 @@ class TransferLearningModel:
     def load_data(self):
         X = []
         y = []
+
         for label in os.listdir(self.image_path):
             for file_name in os.listdir(f"{self.image_path}/{label}"):
                 try:
