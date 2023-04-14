@@ -28,39 +28,38 @@
         <div class="row">
             <div class="col-4">
                 <h5>Kiến trúc</h5>
-                <select class="form-select" id="kien-truc">
-                    <option selected>Scratch</option>
-                    <option value="1">MobileNetV2</option>
-                    <option value="2">Resnet</option>
-                    <option value="3">VGG</option>
+                <select class="form-select" id="kien-truc" name="model">
+                    <option selected value="Scratch">NanoCNN</option>
+                    {%for model in structs['models']%}
+                    <option value="{{model}}">{{model}}</option>
+                    {%endfor%}
                 </select>
             </div>
             <div class="col-4">
                 <h5>Tunner</h5>
-                <select class="form-select" id="tunner">
-                    <option selected>Có</option>
-                    <option value="1">Không</option>
+                <select class="form-select" id="tunner" name="tunner">
+                    <option value="0" selected>Không</option>
+                    <option value="1">Có</option>
                 </select>
             </div>
             <div class="col-4">
                 <h5>Augumentation</h5>
-                <select class="form-select" id="aug">
-                    <option selected>Có</option>
-                    <option value="1">Không</option>
+                <select class="form-select" id="aug" name="aug">
+                    <option value="0" selected>Không</option>
+                    <option value="1">Có</option>
                 </select>
             </div>
-            <div class="col-4"></div>
         </div>
         <div class="row">
             <div class="col-3">
                 <h5>Kích thước hình ảnh</h5>
                 <div class="row">
                     <div class="col-4">
-                        <input type="number" class="form-control" value="224" id="img-size-with"/>
+                        <input type="number" class="form-control" value="224" id="img-size-with" name="width"/>
                     </div>
                     X
                     <div class="col-4">
-                        <input type="number" class="form-control" value="224" id="img-size-height"/>
+                        <input type="number" class="form-control" value="224" id="img-size-height" name="height"/>
                     </div>
                 </div>
             </div>
@@ -70,8 +69,13 @@
                 <select
                         class="form-select col-1"
                         id="optimizes"
+                        name="optimize"
                 >
-                    <option selected>Adam</option>
+
+                    <option selected value="0">Tự động</option>
+                    {%for optimize in structs['optimizes']%}
+                    <option value="{{optimize}}">{{optimize}}</option>
+                    {%endfor%}
                     <option value="1">SGD</option>
                 </select>
             </div>
@@ -80,16 +84,31 @@
                 <select
                         class="form-select col-1"
                         id="losses"
+                        name="loss"
                 >
-                    <option selected>Category cross entropy</option>
-                    <option value="1">Binary cross entropy</option>
+                    <option value="0" selected>Tự động</option>
+                    {%for loss in structs['losses']%}
+                    <option value="{{loss}}">{{loss}}</option>
+                    {%endfor%}
                 </select>
             </div>
             <div class="col-3">
                 <h5>Số lần huấn luyện</h5>
                 <div class="row">
-                    <input type="number" class="form-control" value="50" id="epochs"/>
+                    <input type="number" class="form-control" value="50" id="epochs" name="epochs"/>
                 </div>
+            </div>
+            <div class="col-3">
+
+                <h5>Export model</h5>
+                <select class="form-select" name="model_type">
+                    <option value="tf" selected>Tensorflow</option>
+                    <option value="lite">Tensorflow lite</option>
+                    <option value="onnx">ONXX</option>
+                    <option value="torch">Pytorch</option>
+                    <option value="ncnn">NCNN</option>
+                </select>
+
             </div>
         </div>
         <h5>Fully connected</h5>
@@ -98,7 +117,9 @@
                 <h6>Layers</h6>
                 <select class="form-select" id="layers">
                     <option selected>Tự động</option>
-                    <option value="AbstractRNNCell">AbstractRNNCell</option>
+                    {%for layer in structs['layers']%}
+                    <option value="{{layer}}">{{layer}}</option>
+                    {%endfor%}
                 </select>
                 <button type="button" class="btn btn-warning" onclick="addParameter()">Thêm</button>
             </div>

@@ -15,9 +15,29 @@ from tensorflow.keras.callbacks import ModelCheckpoint
 from tensorflow.keras.layers import AbstractRNNCell, Activation, ActivityRegularization, AveragePooling2D, AvgPool2D, \
     BatchNormalization, Conv2D, Conv2DTranspose, Dense, Dropout, GlobalAveragePooling2D, GlobalMaxPooling2D, LSTM, \
     Flatten, MaxPooling2D, MaxPool2D
+from tensorflow.keras.losses import BinaryCrossentropy, CategoricalCrossentropy, BinaryFocalCrossentropy, \
+    SparseCategoricalCrossentropy, KLDivergence, MeanSquaredError, MeanAbsolutePercentageError, MeanAbsoluteError
+from tensorflow.keras.optimizers import Adam, SGD, Adadelta, RMSprop, Adagrad, Nadam
 
 enc = OneHotEncoder()
-
+losses_dict = {
+    "BinaryCrossentropy": BinaryCrossentropy,
+    "CategoricalCrossentropy": CategoricalCrossentropy,
+    "BinaryFocalCrossentropy": BinaryFocalCrossentropy,
+    "SparseCategoricalCrossentropy": SparseCategoricalCrossentropy,
+    "KLDivergence": KLDivergence,
+    "MeanSquaredError": MeanSquaredError,
+    "MeanAbsolutePercentageError": MeanAbsolutePercentageError,
+    "MeanAbsoluteError": MeanAbsoluteError
+}
+optimizes_dict = {
+    "Adam": Adam,
+    "SGD": SGD,
+    "Adadelta": Adadelta,
+    "Nadam": Nadam,
+    "RMSprop": RMSprop,
+    "Adagrad": Adagrad
+}
 structured_dict = {
     "MobileNet": {
         "preprocess": mobilenet.preprocess_input,
@@ -31,51 +51,119 @@ structured_dict = {
             "MobileNetV2": mobilenet_v2.MobileNetV2
         }
     },
-    "MobileNetV3": {
+    "MobileNetV3Large": {
         "preprocess": mobilenet_v3.preprocess_input,
         "structured": {
             "MobileNetV3Large": tf.keras.applications.MobileNetV3Large,
             "MobiletNetV3Small": tf.keras.applications.MobileNetV3Small
         }
     },
-    "NASNet": {
+    "MobiletNetV3Small": {
+        "preprocess": mobilenet_v3.preprocess_input,
+        "structured": {
+            "MobiletNetV3Small": tf.keras.applications.MobileNetV3Small
+        }
+    },
+    "NASNetLarge": {
         "preprocess": nasnet.preprocess_input,
         "structured": {
             "NASNetLarge": tf.keras.applications.NASNetLarge,
+
+        }
+    },
+    "NASNetMobile": {
+        "preprocess": nasnet.preprocess_input,
+        "structured": {
             "NASNetMobile": tf.keras.applications.NASNetMobile
         }
     },
-    "RegNet": {
+    "RegNetX002": {
         "preprocess": regnet.preprocess_input,
         "structured": {
             "RegNetX002": tf.keras.applications.RegNetX002,
+
+        }
+    },
+    "RegNetX160": {
+        "preprocess": regnet.preprocess_input,
+        "structured": {
+
             "RegNetX160": tf.keras.applications.RegNetX160,
+
+        }
+    },
+    "RegNetX320": {
+        "preprocess": regnet.preprocess_input,
+        "structured": {
+
             "RegNetX320": tf.keras.applications.RegNetX320,
 
         }
     },
-    "ResNet": {
+    "ResNet50": {
         "preprocess": resnet.preprocess_input,
         "structured": {
             "ResNet50": resnet.ResNet50,
+
+        }
+    },
+    "ResNet101": {
+        "preprocess": resnet.preprocess_input,
+        "structured": {
+
             "ResNet101": resnet.ResNet101,
+
+        }
+    },
+    "ResNet152": {
+        "preprocess": resnet.preprocess_input,
+        "structured": {
+
             "ResNet152": resnet.ResNet152
 
         }
     },
-    "ResNetRS": {
+    "ResNet50": {
         "preprocess": resnet_rs.preprocess_input,
         "structured": {
             "ResNet50": resnet_rs.ResNetRS50,
+
+        }
+    },
+    "ResNetRS101": {
+        "preprocess": resnet_rs.preprocess_input,
+        "structured": {
+
             "ResNetRS101": resnet_rs.ResNetRS101,
+
+        }
+    },
+    "ResNetRS152": {
+        "preprocess": resnet_rs.preprocess_input,
+        "structured": {
+
             "ResNetRS152": resnet_rs.ResNetRS152
         }
     },
-    "ResNetV2": {
+    "ResNet50V2": {
         "preprocess": resnet_v2.preprocess_input,
         "structured": {
             "ResNet50V2": resnet_v2.ResNet50V2,
+
+        }
+    },
+    "ResNet101V2": {
+        "preprocess": resnet_v2.preprocess_input,
+        "structured": {
+
             "ResNet101V2": resnet_v2.ResNet101V2,
+
+        }
+    },
+    "ResNet152V2": {
+        "preprocess": resnet_v2.preprocess_input,
+        "structured": {
+
             "ResNet152V2": resnet_v2.ResNet152V2
         }
     },
@@ -114,7 +202,6 @@ layers_dict = {
     "LSTM": LSTM,
     "Flatten": Flatten,
     "MaxPolling2D": MaxPooling2D,
-    "Sequential": Sequential,
     "MaxPool2D": MaxPool2D
 }
 
@@ -131,7 +218,9 @@ def build_model(layers, input_size, num_classes, num_channels):
 class ModelFromScratch:
     def __init__(self, num_classes, model=None, aug=False, tunner=False,
                  image_size=224, epochs=100, num_chanel=3, optimize='adam', loss='categorical_crossentropy',
-                 image_path=""):
+                 image_path="", quantized=False, export_model='tf'):
+        self.quantized = quantized
+        self.export_model = export_model
         self.optimize = optimize
         self.epochs = epochs
         self.image_path = image_path
@@ -207,11 +296,11 @@ class ModelFromScratch:
         Roc = roc_auc_score(grouth_trust, predictions)
         return Accuracy, Precision, Recall, f1_Score, Roc, Specificity, Sensitivity
 
-    def export(self, export_type='tf', quantized=False):
-        if export_type == 'tf':
+    def export(self):
+        if self.export_model == 'tf':
             self.model.save('model.h5')
         else:
-            if quantized:
+            if self.quantized:
                 converter = tf.lite.TFLiteConverter.from_keras_model(
                     self.model)
                 converter.optimizations = [tf.lite.Optimize.DEFAULT]
@@ -228,16 +317,19 @@ class ModelFromScratch:
 
 
 class TransferLearningModel:
-    def __init__(self, structured, base_model, num_classes, aug=False, fully_connected_layer=None, tunner=False,
-                 image_size=224, epochs=100, optimize='adam', loss='categorical_crossentropy', image_path=""):
-        self.preprocess_input = structured['preprocess']
+    def __init__(self, structured, num_classes, aug=False, fully_connected_layer=None, tunner=False,
+                 image_size=224, epochs=100, optimize='adam', loss='categorical_crossentropy', image_path="",
+                 quantized=False, export_model='tf'):
+        self.quantized = quantized
+        self.export_model = export_model
+        self.preprocess_input = structured_dict[structured]['preprocess']
         self.optimize = optimize
         self.epochs = epochs
         self.image_path = image_path
         self.image_size = image_size
         self.aug = aug
         self.num_classes = len(os.listdir(self.image_path))
-        base = base_model(include_top=False, input_shape=(
+        base = structured_dict[structured]['structured'](include_top=False, input_shape=(
             self.image_size, self.image_size, 3))
         for layer in base.layers:
             layer.trainable = False
@@ -312,11 +404,11 @@ class TransferLearningModel:
         Roc = roc_auc_score(grouth_trust, predictions)
         return Accuracy, Precision, Recall, f1_Score, Roc, Specificity, Sensitivity
 
-    def export(self, export_type='tf', quantized=False):
-        if export_type == 'tf':
+    def export(self):
+        if self.export_model == 'tf':
             self.model.save('model.h5')
         else:
-            if quantized:
+            if self.quantized:
                 converter = tf.lite.TFLiteConverter.from_keras_model(
                     self.model)
                 converter.optimizations = [tf.lite.Optimize.DEFAULT]

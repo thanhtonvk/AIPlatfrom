@@ -4,3 +4,4 @@ opencv-python~=4.4.0.42
 sklearn~=0.0.post1
 scikit-learn~=0.23.0
 pandas~=1.2.4
+Flask==2.1.0
