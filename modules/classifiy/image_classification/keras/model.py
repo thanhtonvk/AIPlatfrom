@@ -123,7 +123,7 @@ structured_dict = {
 
         }
     },
-    "ResNet50": {
+    "ResNetRS50": {
         "preprocess": resnet_rs.preprocess_input,
         "structured": {
             "ResNet50": resnet_rs.ResNetRS50,
@@ -216,7 +216,7 @@ def build_model(layers, input_size, num_classes, num_channels):
 
 
 class ModelFromScratch:
-    def __init__(self, num_classes, model=None, aug=False, tunner=False,
+    def __init__(self, num_classes=2, model=None, aug=False, tunner=False,
                  image_size=224, epochs=100, num_chanel=3, optimize='adam', loss='categorical_crossentropy',
                  image_path="", quantized=False, export_model='tf'):
         self.quantized = quantized
@@ -226,19 +226,15 @@ class ModelFromScratch:
         self.image_path = image_path
         self.image_size = image_size
         self.num_chanel = num_chanel
-        self.num_classes = len(os.listdir(self.image_path))
-        if self.model is not None:
-            self.model = model
-        else:
-            self.model = Sequential()
-            self.model.add(Conv2D(32, (3, 3), activation='relu', input_shape=(image_size, image_size, num_chanel)))
-            self.model.add(MaxPooling2D((2, 2)))
-            self.model.add(Conv2D(64, (3, 3), activation='relu'))
-            self.model.add(MaxPooling2D((2, 2)))
-            self.model.add(Conv2D(64, (3, 3), activation='relu'))
-            self.model.add(GlobalAveragePooling2D())
-            self.model.add(Dense(32, activation='relu'))
-            self.model.add(Dense(num_classes, activation='softmax'))
+        self.model = Sequential()
+        self.model.add(Conv2D(32, (3, 3), activation='relu', input_shape=(image_size, image_size, num_chanel)))
+        self.model.add(MaxPooling2D((2, 2)))
+        self.model.add(Conv2D(64, (3, 3), activation='relu'))
+        self.model.add(MaxPooling2D((2, 2)))
+        self.model.add(Conv2D(64, (3, 3), activation='relu'))
+        self.model.add(GlobalAveragePooling2D())
+        self.model.add(Dense(32, activation='relu'))
+        self.model.add(Dense(num_classes, activation='softmax'))
         self.model.compile(loss=loss, optimizer=optimize, metrics=['accuracy'])
         self.X_train, self.X_test, self.y_train, self.y_test = self.load_data()
 
@@ -297,27 +293,32 @@ class ModelFromScratch:
         return Accuracy, Precision, Recall, f1_Score, Roc, Specificity, Sensitivity
 
     def export(self):
+        path = ''
         if self.export_model == 'tf':
-            self.model.save('model.h5')
+            path = './export/model.h5'
+            self.model.save(path)
         else:
             if self.quantized:
                 converter = tf.lite.TFLiteConverter.from_keras_model(
                     self.model)
                 converter.optimizations = [tf.lite.Optimize.DEFAULT]
                 tflite_quant_model = converter.convert()
-                with open('model_int8.tflite', 'wb') as f:
+                path = './export/model_int8.tflite'
+                with open(path, 'wb') as f:
                     f.write(tflite_quant_model)
             else:
                 converter = tf.lite.TFLiteConverter.from_keras_model(
                     self.model)
                 converter.optimizations = [tf.lite.Optimize.DEFAULT]
+                path = './export/model.tflite'
                 tflite_quant_model = converter.convert()
-                with open('model.tflite', 'wb') as f:
+                with open(path, 'wb') as f:
                     f.write(tflite_quant_model)
+        return path
 
 
 class TransferLearningModel:
-    def __init__(self, structured, num_classes, aug=False, fully_connected_layer=None, tunner=False,
+    def __init__(self, structured, num_classes=2, aug=False, fully_connected_layer=None, tunner=False,
                  image_size=224, epochs=100, optimize='adam', loss='categorical_crossentropy', image_path="",
                  quantized=False, export_model='tf'):
         self.quantized = quantized
@@ -328,8 +329,7 @@ class TransferLearningModel:
         self.image_path = image_path
         self.image_size = image_size
         self.aug = aug
-        self.num_classes = len(os.listdir(self.image_path))
-        base = structured_dict[structured]['structured'](include_top=False, input_shape=(
+        base = structured_dict[structured]['structured'][structured](include_top=False, input_shape=(
             self.image_size, self.image_size, 3))
         for layer in base.layers:
             layer.trainable = False
@@ -405,20 +405,25 @@ class TransferLearningModel:
         return Accuracy, Precision, Recall, f1_Score, Roc, Specificity, Sensitivity
 
     def export(self):
+        path = ''
         if self.export_model == 'tf':
-            self.model.save('model.h5')
+            path = 'export/model.h5'
+            self.model.save('./' + path)
         else:
             if self.quantized:
                 converter = tf.lite.TFLiteConverter.from_keras_model(
                     self.model)
                 converter.optimizations = [tf.lite.Optimize.DEFAULT]
                 tflite_quant_model = converter.convert()
-                with open('model_int8.tflite', 'wb') as f:
+                path = 'export/model_int8.tflite'
+                with open('./' + path, 'wb') as f:
                     f.write(tflite_quant_model)
             else:
                 converter = tf.lite.TFLiteConverter.from_keras_model(
                     self.model)
                 converter.optimizations = [tf.lite.Optimize.DEFAULT]
+                path = 'export/model.tflite'
                 tflite_quant_model = converter.convert()
-                with open('model.tflite', 'wb') as f:
+                with open('./' + path, 'wb') as f:
                     f.write(tflite_quant_model)
+        return path

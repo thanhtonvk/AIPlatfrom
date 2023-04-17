@@ -7,7 +7,12 @@ from tensorflow.python.keras.callbacks import ModelCheckpoint
 import tensorflow as tf
 
 from modules.classifiy.tabular_classification.cnn_backbone import CNN, MobileNet, VGG
-
+from tensorflow.keras.layers import AbstractRNNCell, Activation, ActivityRegularization, AveragePooling1D, AvgPool1D, \
+    BatchNormalization, Conv1D, Conv1DTranspose, Dense, Dropout, GlobalAveragePooling1D, GlobalMaxPooling1D, LSTM, \
+    Flatten, MaxPooling1D, MaxPool1D
+from tensorflow.keras.losses import BinaryCrossentropy, CategoricalCrossentropy, BinaryFocalCrossentropy, \
+    SparseCategoricalCrossentropy, KLDivergence, MeanSquaredError, MeanAbsolutePercentageError, MeanAbsoluteError
+from tensorflow.keras.optimizers import Adam, SGD, Adadelta, RMSprop, Adagrad, Nadam
 backbone_model_dict = {
     "CNN": CNN.CNN,
     "MobileNetV1": MobileNet.MobileNet.MobileNet_v1,
@@ -15,6 +20,42 @@ backbone_model_dict = {
     "MobileNetV3Small": MobileNet.MobileNet.MobileNet_v3_Small,
     "MobileNetV3Large": MobileNet.MobileNet.MobileNet_v3_Large,
     "VGG": VGG.VGG.VGG11
+}
+layers_dict = {
+    "AbstractRNNCell": AbstractRNNCell,
+    "Activation": Activation,
+    "ActivityRegularization": ActivityRegularization,
+    "AveragePooling1D": AveragePooling1D,
+    "AvgPool1D": AvgPool1D,
+    "BatchNormalization": BatchNormalization,
+    "Conv1D": Conv1D,
+    "Conv1DTranspose": Conv1DTranspose,
+    "Dense": Dense,
+    "Dropout": Dropout,
+    "GlobalAveragePooling1D": GlobalAveragePooling1D,
+    "GlobalMaxPooling1D": GlobalMaxPooling1D,
+    "LSTM": LSTM,
+    "Flatten": Flatten,
+    "MaxPolling1D": MaxPooling1D,
+    "MaxPool1D": MaxPool1D
+}
+losses_dict = {
+    "BinaryCrossentropy": BinaryCrossentropy,
+    "CategoricalCrossentropy": CategoricalCrossentropy,
+    "BinaryFocalCrossentropy": BinaryFocalCrossentropy,
+    "SparseCategoricalCrossentropy": SparseCategoricalCrossentropy,
+    "KLDivergence": KLDivergence,
+    "MeanSquaredError": MeanSquaredError,
+    "MeanAbsolutePercentageError": MeanAbsolutePercentageError,
+    "MeanAbsoluteError": MeanAbsoluteError
+}
+optimizes_dict = {
+    "Adam": Adam,
+    "SGD": SGD,
+    "Adadelta": Adadelta,
+    "Nadam": Nadam,
+    "RMSprop": RMSprop,
+    "Adagrad": Adagrad
 }
 
 

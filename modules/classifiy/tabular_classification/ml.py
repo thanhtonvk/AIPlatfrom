@@ -64,7 +64,8 @@ class ML:
         return Accuracy, Precision, Recall, f1_Score, Roc, Specificity, Sensitivity
 
     def export_model(self):
-        pickle.dump(model, open('model.pkl', 'wb'))
+        pickle.dump(self.model, open('model.pkl', 'wb'))
+        return 'model.pkl'
 
 
 if __name__ == '__main__':

@@ -24,7 +24,7 @@
 
 <div class="container">
     <h1>Phân loại hình ảnh</h1>
-    <form action="" method="POST" enctype="multipart/form-data">
+    <form method="POST" enctype="multipart/form-data">
         <div class="row">
             <div class="col-4">
                 <h5>Kiến trúc</h5>
@@ -34,6 +34,10 @@
                     <option value="{{model}}">{{model}}</option>
                     {%endfor%}
                 </select>
+            </div>
+            <div class="col-4">
+                <h5>Số lượng nhãn</h5>
+                <input class="form-control" type="number" value="2" name="num-classes"/>
             </div>
             <div class="col-4">
                 <h5>Tunner</h5>
@@ -72,7 +76,7 @@
                         name="optimize"
                 >
 
-                    <option selected value="0">Tự động</option>
+                    <option selected value="Adam">Tự động</option>
                     {%for optimize in structs['optimizes']%}
                     <option value="{{optimize}}">{{optimize}}</option>
                     {%endfor%}
@@ -86,7 +90,7 @@
                         id="losses"
                         name="loss"
                 >
-                    <option value="0" selected>Tự động</option>
+                    <option value="CategoricalCrossentropy" selected>Tự động</option>
                     {%for loss in structs['losses']%}
                     <option value="{{loss}}">{{loss}}</option>
                     {%endfor%}
@@ -146,15 +150,40 @@
                     </tbody>
                 </table>
             </div>
-
         </div>
-
-
         <p>File <input type="file" name="file" class="form-control"/></p>
         <p>
             <input type="submit" value="Huấn luyện" class="btn btn-primary"/>
         </p>
     </form>
+    {% if structs['evaluate']%}
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">Accuracy</th>
+            <th scope="col">Precision</th>
+            <th scope="col">Recall</th>
+            <th scope="col">f1_Score</th>
+            <th scope="col">Roc</th>
+            <th scope="col">Specificity</th>
+            <th scope="col">Sensitivity</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+
+            <td>{{structs['evaluate'][0]}}</td>
+            <td>{{structs['evaluate'][1]}}}</td>
+            <td>{{structs['evaluate'][2]}}</td>
+            <td>{{structs['evaluate'][3]}}</td>
+            <td>{{structs['evaluate'][4]}}</td>
+            <td>{{structs['evaluate'][5]}}</td>
+            <td>{{structs['evaluate'][6]}}</td>
+        </tr>
+        </tbody>
+    </table>
+    <a href="{{structs['file_export']}}" class="btn btn-danger">Download model</a>
+    {% endif %}
 </div>
 </body>
 <script type="text/javascript">

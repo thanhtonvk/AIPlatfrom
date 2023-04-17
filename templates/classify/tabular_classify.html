@@ -30,11 +30,12 @@
             <div class="row">
                 <div class="col-4">
                     <h5>Kiến trúc</h5>
-                    <select class="form-select" id="kien-truc">
-                        <option selected>Scratch</option>
-                        <option value="1">MobileNetV2</option>
-                        <option value="2">Resnet</option>
-                        <option value="3">VGG</option>
+                    <select class="form-select" id="model-cnn" name="model-cnn">
+                        <option selected value="CNN">Mặc định</option>
+                        {%for model in structs['cnn']%}
+                        <option value="{{model}}">{{model}}</option>
+                        {%endfor%}
+
                     </select>
                 </div>
                 <div class="col-4">
@@ -59,8 +60,12 @@
                     <select
                             class="form-select col-1"
                             id="optimizes"
-                    >
-                        <option selected>Adam</option>
+                            name="optimize">
+
+                        <option selected value="Adam">Tự động</option>
+                        {%for optimize in structs['optimizes']%}
+                        <option value="{{optimize}}">{{optimize}}</option>
+                        {%endfor%}
                         <option value="1">SGD</option>
                     </select>
                 </div>
@@ -69,9 +74,12 @@
                     <select
                             class="form-select col-1"
                             id="losses"
+                            name="loss"
                     >
-                        <option selected>Category cross entropy</option>
-                        <option value="1">Binary cross entropy</option>
+                        <option value="CategoricalCrossentropy" selected>Tự động</option>
+                        {%for loss in structs['losses']%}
+                        <option value="{{loss}}">{{loss}}</option>
+                        {%endfor%}
                     </select>
                 </div>
                 <div class="col-4">
@@ -87,7 +95,9 @@
                     <h6>Layers</h6>
                     <select class="form-select" id="layers">
                         <option selected>Tự động</option>
-                        <option value="AbstractRNNCell">AbstractRNNCell</option>
+                        {%for layer in structs['layers']%}
+                        <option value="{{layer}}">{{layer}}</option>
+                        {%endfor%}
                     </select>
                     <button type="button" class="btn btn-warning" onclick="addParameter()">Thêm</button>
                 </div>
@@ -125,20 +135,21 @@
         </form>
 
         <h3>Machine Learning</h3>
-        <form action="" method="POST" enctype="multipart/form-data">
+        <form action="/classify/tabular" method="POST" enctype="multipart/form-data">
             <div class="col-4">
                 <h5>Kiến trúc</h5>
-                <select class="form-select" id="model">
-                    <option selected>Logistic Regression</option>
-                    <option value="1">XGBoost</option>
-                    <option value="2">RandomForest</option>
-                    <option value="3">GradientBoostingClassifier</option>
+                <select class="form-select" id="model" name="model">
+                    <option selected value="LogisticRegression">Logistic Regression</option>
+                    {%for model in structs['ml']%}
+                    <option value="{{model}}">{{model}}</option>
+                    {%endfor%}
+
                 </select>
                 <div class="col-4">
                     <h5>Smotenc</h5>
                     <select class="form-select">
-                        <option selected>Có</option>
-                        <option value="1">Không</option>
+                        <option value="0" selected>Không</option>
+                        <option value="1">Có</option>
                     </select>
                 </div>
                 <p>File <input type="file" name="file" class="form-control"/></p>
@@ -147,7 +158,34 @@
                 </p>
             </div>
         </form>
+         {% if structs['evaluate']%}
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">Accuracy</th>
+            <th scope="col">Precision</th>
+            <th scope="col">Recall</th>
+            <th scope="col">f1_Score</th>
+            <th scope="col">Roc</th>
+            <th scope="col">Specificity</th>
+            <th scope="col">Sensitivity</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
 
+            <td>{{structs['evaluate'][0]}}</td>
+            <td>{{structs['evaluate'][1]}}}</td>
+            <td>{{structs['evaluate'][2]}}</td>
+            <td>{{structs['evaluate'][3]}}</td>
+            <td>{{structs['evaluate'][4]}}</td>
+            <td>{{structs['evaluate'][5]}}</td>
+            <td>{{structs['evaluate'][6]}}</td>
+        </tr>
+        </tbody>
+    </table>
+    <a href="{{structs['file_export']}}" class="btn btn-danger">Download model</a>
+    {% endif %}
     </div>
 
 </div>
